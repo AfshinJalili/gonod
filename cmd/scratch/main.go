@@ -26,22 +26,21 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-
 	plainPassword := "password123"
 	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(plainPassword), bcrypt.DefaultCost)
 	if err != nil {
-		log.Fatal("Failed to hash password:" , err)
+		log.Fatal("Failed to hash password:", err)
 	}
 
 	newUser := &domain.User{
-		Email: "test@example.com",
-		Passowrd: string(hashedBytes),
+		Email:    "test@example.com",
+		Password: string(hashedBytes),
 	}
 
 	fmt.Println("Inserting user...")
 	err = repo.CreateUser(ctx, newUser)
 	if err != nil {
-		log.Fatal("Failed to create user:", err) 
+		log.Fatal("Failed to create user:", err)
 	}
 	fmt.Printf("Sucsess! Generated UUID: %s\n", newUser.ID)
 
@@ -53,7 +52,7 @@ func main() {
 
 	fmt.Printf("Found User: %s | Created At: %v\n", fetchedUser.Email, fetchedUser.CreatedAt)
 
-	err = bcrypt.CompareHashAndPassword([]byte(fetchedUser.Passowrd), []byte(plainPassword))
+	err = bcrypt.CompareHashAndPassword([]byte(fetchedUser.Password), []byte(plainPassword))
 	if err == nil {
 		fmt.Println("Password verified successfully")
 	}

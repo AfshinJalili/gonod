@@ -8,8 +8,8 @@ import (
 
 type Config struct {
 	Environment string
-	Port  string
-	DBURL string
+	Port        string
+	DBURL       string
 }
 
 func Load() *Config {
@@ -19,9 +19,8 @@ func Load() *Config {
 
 	cfg := &Config{
 		Environment: os.Getenv("ENVIRONMENT"),
-		Port:  os.Getenv("PORT"),
-		DBURL: os.Getenv("DB_URL"),
-
+		Port:        os.Getenv("PORT"),
+		DBURL:       os.Getenv("DB_URL"),
 	}
 
 	if cfg.Port == "" {

@@ -7,7 +7,7 @@ import (
 )
 
 func registerRoutes(mux *http.ServeMux) {
-	
+
 	healthHanlder := handler.NewHealthHanlder()
 
 	mux.Handle("/health", healthHanlder)

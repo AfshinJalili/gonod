@@ -6,14 +6,14 @@ import (
 )
 
 type User struct {
-	ID string
-	Email string
-	Passowrd string
+	ID        string
+	Email     string
+	Password  string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
-type UserRepositry interface {
+type UserRepository interface {
 	CreateUser(ctx context.Context, user *User) error
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 }

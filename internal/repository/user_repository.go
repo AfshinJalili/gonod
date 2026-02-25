@@ -11,16 +11,16 @@ type PostgresUserRepository struct {
 	db *sql.DB
 }
 
-func NewUserRepository(db *sql.DB) domain.UserRepositry {
+func NewUserRepository(db *sql.DB) domain.UserRepository {
 	return &PostgresUserRepository{db: db}
 }
 
-func (r *PostgresUserRepository) CreateUser(ctx context.Context, u *domain.User) error {	
+func (r *PostgresUserRepository) CreateUser(ctx context.Context, u *domain.User) error {
 	query := `
 		INSERT INTO users (email, password)
 		VALUES ($1, $2)
 		RETURNING id, created_at, updated_at`
-	err := r.db.QueryRowContext(ctx, query, u.Email, u.Passowrd).
+	err := r.db.QueryRowContext(ctx, query, u.Email, u.Password).
 		Scan(&u.ID, &u.CreatedAt, &u.UpdatedAt)
 
 	return err
@@ -34,7 +34,7 @@ func (r *PostgresUserRepository) GetUserByEmail(ctx context.Context, email strin
 
 	var u domain.User
 	err := r.db.QueryRowContext(ctx, query, email).
-		Scan(&u.ID, &u.Email, &u.Passowrd, &u.CreatedAt, &u.UpdatedAt)
+		Scan(&u.ID, &u.Email, &u.Password, &u.CreatedAt, &u.UpdatedAt)
 
 	if err != nil {
 		return nil, err
