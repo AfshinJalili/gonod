@@ -5,13 +5,13 @@ import (
 	"net/http"
 )
 
-type HealthHanlder struct{}
+type HealthHandler struct{}
 
-func NewHealthHanlder() http.Handler {
-	return &HealthHanlder{}
+func NewHealthHandler() http.Handler {
+	return &HealthHandler{}
 }
 
-func (h *HealthHanlder) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *HealthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(struct {
 		Status string `json:"status"`

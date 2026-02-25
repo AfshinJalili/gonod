@@ -1,14 +1,9 @@
 package server
 
-import (
-	"net/http"
+func (s *Server) registerRoutes() {
 
-	"github.com/AfshinJalili/gonod/internal/handler"
-)
+	s.mux.Handle("GET /health", s.healthHandler)
 
-func registerRoutes(mux *http.ServeMux) {
-
-	healthHanlder := handler.NewHealthHanlder()
-
-	mux.Handle("/health", healthHanlder)
+	s.mux.HandleFunc("POST /register", s.authHandler.Register)
+	s.mux.HandleFunc("POST /login", s.authHandler.Login)
 }

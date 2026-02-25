@@ -3,13 +3,24 @@ package server
 import (
 	"net/http"
 
+	"github.com/AfshinJalili/gonod/internal/handler"
 	"github.com/AfshinJalili/gonod/internal/middleware"
 )
 
-func New() http.Handler {
-	mux := http.NewServeMux()
+type Server struct {
+	mux           *http.ServeMux
+	healthHandler http.Handler
+	authHandler   *handler.AuthHandler
+}
 
-	registerRoutes(mux)
+func New(authHandler *handler.AuthHandler) http.Handler {
+	s := &Server{
+		mux:           http.NewServeMux(),
+		healthHandler: handler.NewHealthHandler(),
+		authHandler:   authHandler,
+	}
 
-	return middleware.Chain(mux, middleware.Logging, middleware.Recover)
+	s.registerRoutes()
+
+	return middleware.Chain(s.mux, middleware.Logging, middleware.Recover)
 }

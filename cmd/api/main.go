@@ -6,8 +6,11 @@ import (
 	"os"
 
 	"github.com/AfshinJalili/gonod/internal/config"
+	"github.com/AfshinJalili/gonod/internal/handler"
 	"github.com/AfshinJalili/gonod/internal/platform"
+	"github.com/AfshinJalili/gonod/internal/repository"
 	"github.com/AfshinJalili/gonod/internal/server"
+	"github.com/AfshinJalili/gonod/internal/service"
 )
 
 func main() {
@@ -25,7 +28,11 @@ func main() {
 	}
 	defer db.Close()
 
-	srv := server.New()
+	userRepo := repository.NewUserRepository(db)
+	userService := service.NewUserService(userRepo)
+	authHandler := handler.NewAuthHandler(userService)
+
+	srv := server.New(authHandler)
 
 	slog.Info("Starting server", "port", cfg.Port, "environment", cfg.Environment)
 

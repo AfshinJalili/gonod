@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"errors"
 	"time"
 )
 
@@ -17,3 +18,5 @@ type UserRepository interface {
 	CreateUser(ctx context.Context, user *User) error
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 }
+
+var ErrDuplicateEmail = errors.New("a user with this email already exists")
