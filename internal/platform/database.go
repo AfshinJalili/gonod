@@ -41,6 +41,7 @@ func runMigrations(dbURL string) error {
 			slog.Info("Database migrations are already up to date")
 			return nil
 		}
+		return err
 	}
 
 	slog.Info("Database migrations applied successfully")
