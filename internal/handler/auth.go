@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"net/mail"
+	"regexp"
 	"strings"
 
 	"github.com/AfshinJalili/gonod/internal/domain"
 	"github.com/AfshinJalili/gonod/internal/service"
 )
+
+var emailRegex = regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
 
 type AuthHandler struct {
 	userService *service.UserService
@@ -24,12 +26,17 @@ type AuthRequest struct {
 	Password string `json:"password"`
 }
 
+func (req *AuthRequest) Sanitize() {
+	req.Email = strings.ToLower(strings.TrimSpace(req.Email))
+	req.Password = strings.TrimSpace(req.Password)
+}
+
 func (req *AuthRequest) Validate() map[string]string {
 	errors := make(map[string]string)
 
 	if req.Email == "" {
 		errors["email"] = "email is required"
-	} else if _, err := mail.ParseAddress(req.Email); err != nil {
+	} else if !emailRegex.MatchString(req.Email) {
 		errors["email"] = "must be a valid email format"
 	}
 
@@ -47,11 +54,12 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	req.Sanitize()
+
 	if validationErrors := req.Validate(); len(validationErrors) > 0 {
-		JSONError(w,r, http.StatusBadRequest,"Invalid request payload", nil)
+		JSONError(w, r, http.StatusBadRequest, "Invalid request payload", nil)
 		return
 	}
-
 
 	err := h.userService.Register(r.Context(), req.Email, req.Password)
 	if err != nil {
@@ -75,8 +83,10 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	req.Sanitize()
+
 	if validationErrors := req.Validate(); len(validationErrors) > 0 {
-		JSONError(w,r, http.StatusBadRequest,"Invalid request payload", nil)
+		JSONError(w, r, http.StatusBadRequest, "Invalid request payload", nil)
 		return
 	}
 
