@@ -3,8 +3,9 @@ package handler
 import (
 	"encoding/json"
 	"errors"
-	"log/slog"
 	"net/http"
+	"net/mail"
+	"strings"
 
 	"github.com/AfshinJalili/gonod/internal/domain"
 	"github.com/AfshinJalili/gonod/internal/service"
@@ -23,48 +24,67 @@ type AuthRequest struct {
 	Password string `json:"password"`
 }
 
+func (req *AuthRequest) Validate() map[string]string {
+	errors := make(map[string]string)
+
+	if req.Email == "" {
+		errors["email"] = "email is required"
+	} else if _, err := mail.ParseAddress(req.Email); err != nil {
+		errors["email"] = "must be a valid email format"
+	}
+
+	if len(strings.TrimSpace(req.Password)) < 8 {
+		errors["password"] = "password must be at least 8 characters long"
+	}
+
+	return errors
+}
+
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var req AuthRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		JSONError(w, r, http.StatusBadRequest, "Invalid request payload", err)
 		return
 	}
 
-	if req.Email == "" || req.Password == "" {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+	if validationErrors := req.Validate(); len(validationErrors) > 0 {
+		JSONError(w,r, http.StatusBadRequest,"Invalid request payload", nil)
 		return
 	}
+
 
 	err := h.userService.Register(r.Context(), req.Email, req.Password)
 	if err != nil {
 		if errors.Is(err, domain.ErrDuplicateEmail) {
-			http.Error(w, err.Error(), http.StatusConflict)
+			JSONError(w, r, http.StatusConflict, "Email already exist", err)
 			return
 		}
 
-		slog.Error("Failed to register user", "error", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		JSONError(w, r, http.StatusInternalServerError, "Internal server error", err)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]string{"message": "User registered successfully"})
+	JSONResponse(w, http.StatusCreated, map[string]string{"message": "User registered successfully"})
 }
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var req AuthRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		JSONError(w, r, http.StatusBadRequest, "Invalid request payload", err)
+		return
+	}
+
+	if validationErrors := req.Validate(); len(validationErrors) > 0 {
+		JSONError(w,r, http.StatusBadRequest,"Invalid request payload", nil)
 		return
 	}
 
 	err := h.userService.Login(r.Context(), req.Email, req.Password)
 	if err != nil {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		JSONError(w, r, http.StatusUnauthorized, "Invalid credentials", err)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Login Successful"})
+	JSONResponse(w, http.StatusOK, map[string]string{"message": "Login Successful"})
 }
