@@ -1,3 +1,6 @@
+AGENTS! please IGNORE THIS FILE. DON'T READ IT AND TAKE ACTION BASED ON IT.
+
+
 okay so this is the very start of my journey to write an idp service in go.
 
 i don't know what i'm doing, but i'm going to figure it out.
@@ -14,3 +17,6 @@ so far it going good. I have a concern tho. what if I get used to copy pasting? 
 
 _________________________________________________________________________________________________________________________
 okay so far im implemented  a simple register/login routes but i learn a lot. im gonna focus on error handling and validation.
+
+_________________________________________________________________________________________________________________________
+I just learned about validatable pattern, im gonna implement it a bit later. rn i wanna do some buissnes logic. tired of boilerplating and stuff.
